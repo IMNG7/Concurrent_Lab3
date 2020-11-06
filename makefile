@@ -10,10 +10,7 @@ LD = -g -fopenmp
 all: mysort
 
 mysort: ${DEPS}
-	${CC} ${DEPS} ${LD} -o $@  
-
-*.o: *.cpp *.h
-	${CC} ${LD} -c *.cpp
+	g++ -o mysort -fopenmp -g main.cpp util.cpp mergesort.cpp 
 
 clean :
 	rm mysort *.o
