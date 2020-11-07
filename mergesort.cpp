@@ -7,10 +7,9 @@
 */
 #include <stdlib.h>
 #include "mergesort.h"
-#include "omp.h"
+#include <omp.h>
 extern int total_thread_num;
 extern int offset;
-//export OMP_NUM_THREADS 8
 
 /*
 	Function Name: mergesort
@@ -38,22 +37,40 @@ void mergesort(vector<int> &nums,int left,int right)
 /*
 	Function Name: mergesort_thread
 	Description: Initial recursive function to split the vector for sorting for single thread
+				using OpenMP
 	Inputs: args - thread number
 	Returns: Nothing.
 */
 void mergesort_thread(vector<int> &UnsortedArray)
 {
-	
-	omp_set_num_threads(5);
-	// setenv("OMP_NUM_THREADS","5",1);
-	//int ret = setenv("OMP_NUM_THREADS","8",1);
-	// cout<<"OMP_NUM_THREADS = "<<getenv("OMP_NUM_THREADS");
-	// if(!ret)
-	// {
-	// 	cout<<"\n\rsetenv success";
-	// }
-	// int num_of_threads = omp_get_num_threads();
-	// cout<<"\n\rNum of threads:"<<num_of_threads;
+	//Gets the size of the Unsorted array for further processing
+	int size = UnsortedArray.size();
+	//Get the maximum threads defined that can be used
+	total_thread_num = omp_get_max_threads();
+	#pragma omp parallel shared(UnsortedArray,size)
+	{	
+		//Get the current thread number
+		int thread_part = omp_get_thread_num();
+		cout<<"\n\rThread Part:"<<thread_part;
+		int left =thread_part * (size/total_thread_num);
+		int right=((thread_part+1) * (size/total_thread_num)) -1;
+		if (thread_part == total_thread_num - 1) {
+        right += offset;
+    	}
+		// Calculates the middle value of the array given
+		int middle = left+((right-left)/2);
+		if(left<right)
+		{
+			//Splits the array into two parts and further given to split
+			//until there is only one element left in each.
+			mergesort(UnsortedArray,left,right);
+			mergesort(UnsortedArray,left+1,right);
+			// After splitting each, the are given to merge back after 
+			// sorting
+			// pthread_barrier_wait(&bar);
+			merge(UnsortedArray,left,middle,right);
+		}
+	}
 }
 /*
 	Function Name: merge

@@ -5,15 +5,22 @@
 
 DEPS = main.o util.o mergesort.o
 CC = g++
-LD = -g -fopenmp
+LIBS = -fopenmp
+CFLAGS = -g -O3
 
 all: mysort
 
 mysort: ${DEPS}
-	${CC} ${DEPS} ${LD} -o $@  
+	g++ -o mysort -fopenmp -g main.cpp util.cpp mergesort.cpp 
 
-*.o: *.cpp *.h
-	${CC} ${LD} -c *.cpp
+main.o: main.cpp
+	g++ -o main.o -fopenmp -g -c main.cpp
+
+mergesort.o: mergesort.cpp mergesort.h
+	g++ -o mergesort.o -fopenmp -g -c mergesort.cpp
+
+util.o: util.cpp util.h
+	g++ -o util.o -fopenmp -g -c util.cpp
 
 clean :
 	rm mysort *.o
